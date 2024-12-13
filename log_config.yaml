@@ -1,0 +1,36 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  simple:
+    format: '[%(levelname)-6s|%(filename)s|L%(lineno)d] %(asctime)s:%(message)s'
+    datefmt: '%Y-%m-%dT%H:%M:%S%z'
+  extended:
+    format: '[%(levelname)-6s|p%(process)s|%(filename)s|%(funcName)s|L%(lineno)d] %(asctime)s:%(message)s'
+    datefmt: '%Y-%m-%dT%H:%M:%S%z'
+filters:
+  no_errors:
+    (): src.NonErrorFilter
+handlers:
+  stdout:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+    filters:
+    - no_errors
+  stderr:
+    class: logging.StreamHandler
+    level: WARNING
+    formatter: extended
+    stream: ext://sys.stderr
+  queue_handler:
+    class: logging.handlers.QueueHandler
+    handlers:
+    - stdout
+    - stderr
+    respect_handler_level: true
+loggers:
+  root:
+    level: DEBUG
+    handlers:
+    - queue_handler

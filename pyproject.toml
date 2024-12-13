@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "shc-dashboard"
+version = "0.1.0"
+description = ""
+authors = ["jonas.schrage <119843859+joschrag@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pandas = "^2.2.2"
+matplotlib = "^3.9.0"
+plotly = "^5.22.0"
+sqlalchemy = "^2.0.30"
+dash = {extras = ["diskcache"], version = "^2.17.1"}
+dash-bootstrap-components = "^1.6.0"
+pathlib = "^1.0.1"
+urllib3 = "^1.9.0"
+dash-mantine-components = "0.13.0a2"
+dash-iconify = "^0.1.2"
+pyyaml = "^6.0.1"
+pymem = "^1.14.0"
+psutil = "^6.1.0"
+openpyxl = "^3.1.5"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest-repeat = "^0.9.3"
+pytest = "^8.2.2"
+black = "^24.4.2"
+mypy = "^1.10.0"
+isort = "^5.13.2"
+ipykernel = "^6.29.4"
+flake8 = "^7.0.0"
+pre-commit = "^3.7.1"
+pytest-cov = "^5.0.0"
+dash = {extras = ["testing"], version = "^2.17.1"}
+pydocstyle = "^6.3.0"
+pytest-mock = "^3.14.0"
+types-pyyaml = "^6.0.12.20240311"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 119
+
+[tool.isort]
+profile="black"
