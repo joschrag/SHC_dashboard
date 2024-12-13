@@ -9,7 +9,7 @@ While the game does feature a stats screen after each match, it does miss more m
 
 ## Project Inspiration
 
-This project is inspired by the constant work and videos from [Udwin](https://www.youtube.com/@Udwin),[Krarilotus](https://www.youtube.com/@Krarilotus),[Xander10alpha](https://www.youtube.com/@Xander10alpha) and many more.
+This project is inspired by the constant work and videos from [Udwin](https://www.youtube.com/@Udwin), [Krarilotus](https://www.youtube.com/@Krarilotus), [Xander10alpha](https://www.youtube.com/@Xander10alpha) and many more.
 Most of the work figuring out the memory adresses was already done in other [projects](https://github.com/patel-nikhil/SHCLiveStatReader) by [patel-nikhil](https://github.com/patel-nikhil) and others.
 
 ## Disclaimer
