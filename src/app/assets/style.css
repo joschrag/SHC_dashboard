@@ -1,0 +1,19 @@
+/*Color definitions*/
+:root {
+    --tag-red: 238, 95, 91;
+    --tag-cyan: 91, 192, 222;
+    --tag-blue: 0, 123, 255;
+    --tag-pink: 232, 62, 140;
+    --tag-yellow: 248, 244, 6;
+    --tag-green: 98, 196, 98;
+    --tag-orange: 249, 118, 11;
+    --tag-indigo: 102, 16, 242;
+    --tag-teal: 32, 201, 151;
+    --link-active-bg: 0, 123, 255;
+    --link-active: 255, 255, 255;
+    --tag-alpha: 0.15;
+    --bg-light: #43474d;
+    --btn-bg: 91, 192, 222;
+}
+
+/*Global settings*/

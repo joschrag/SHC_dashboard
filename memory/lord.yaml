@@ -1,0 +1,178 @@
+map_offsets:
+  offset: 0x0
+  memory:
+      - address: 0x24b649c
+        stat_offsets:
+          - name: map_name
+            offset: 0x0
+            type: string
+lord_basic_offsets:
+  offset: 0x1
+  memory:
+    - address: 0x24ba557
+      stat_offsets:
+        - name: active
+          offset: 0x0
+          type: boolean
+        - name: team
+          offset: 0x55f
+          type: byte
+lord_global_offsets:
+  offset: 0x4
+  memory:
+    - address: 0x11f5ab0
+      stat_offsets:
+        - name: num_eco_buildings
+          offset: 0x0
+          type: int
+        - name: num_total_buildings
+          offset: 0x9dccc
+          type: int
+    - address: 0x24ba564
+      stat_offsets:
+        - name: total_gold
+          offset: 0x0
+          type: int
+        - name: weighted_troops_killed
+          offset: 0x2dc
+          type: int
+        - name: weighted_buildings_destroyed
+          offset: 0x300
+          type: int
+        - name: goods_received
+          offset: 0x348
+          type: int
+        - name: goods_sent
+          offset: 0x36c
+          type: int
+lord_name_offsets:
+  offset: 0x5a
+  memory:
+    - address: 0x24ba286
+      stat_offsets:
+        - name: name
+          offset: 0x0
+          type: string
+lord_stat_offsets:
+  offset: 0x39f4
+  memory:
+    - address: 0x11f24a0
+      stat_offsets:
+        - name: housing
+          offset: 0x0
+          type: word
+        - name: units
+          offset: 0x344
+          type: int
+        - name: siege_engines
+          offset: 0x348
+          type: int
+        - name: popularity
+          offset: 0x3d0
+          type: word
+        - name: wood
+          offset: 0x464
+          type: int
+        - name: hops
+          offset: 0x468
+          type: int
+        - name: stone
+          offset: 0x46c
+          type: int
+        - name: iron
+          offset: 0x474
+          type: int
+        - name: pitch
+          offset: 0x478
+          type: int
+        - name: wheat
+          offset: 0x480
+          type: int
+        - name: bread
+          offset: 0x484
+          type: int
+        - name: cheese
+          offset: 0x488
+          type: int
+        - name: meat
+          offset: 0x48c
+          type: int
+        - name: apples
+          offset: 0x490
+          type: int
+        - name: ale
+          offset: 0x494
+          type: int
+        - name: gold
+          offset: 0x498
+          type: int
+        - name: flour
+          offset: 0x49c
+          type: int
+        - name: bows
+          offset: 0x4a0
+          type: int
+        - name: crossbows
+          offset: 0x4a4
+          type: int
+        - name: spears
+          offset: 0x4a8
+          type: int
+        - name: pikes
+          offset: 0x4ac
+          type: int
+        - name: maces
+          offset: 0x4b0
+          type: int
+        - name: swords
+          offset: 0x4b4
+          type: int
+        - name: leather_armor
+          offset: 0x4b8
+          type: int
+        - name: metal_armor
+          offset: 0x4bc
+          type: int
+    - address: 0x11f44c8
+      stat_offsets:
+        - name: total_food
+          offset: 0x0
+          type: int
+        - name: population
+          offset: 0xe4
+          type: word
+        - name: taxes
+          offset: 0xec
+          type: int
+        - name: weighted_losses
+          offset: 0x204
+          type: int
+        - name: ale_coverage
+          offset: 0x208
+          type: int
+        - name: num_inns
+          offset: 0x234
+          type: int
+        # - name: working_woodcutters
+        #   offset: 0xa80
+        #   type: int
+        - name: num_bakery
+          offset: 0xaf4
+          type: int
+    - address: 0x11f5d14
+      stat_offsets:
+        - name: weighted_units
+          offset: 0x0
+          type: int
+        - name: num_farms
+          offset: 0x40
+          type: int
+        - name: num_iron_mines
+          offset: 0xa4
+          type: int
+        - name: num_pitchrigs
+          offset: 0xa8
+          type: int
+        - name: num_quarries
+          offset: 0xac
+          type: int
