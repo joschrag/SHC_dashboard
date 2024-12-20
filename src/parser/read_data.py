@@ -4,6 +4,7 @@ import pathlib
 from ctypes import Array, c_bool, c_byte, c_char, c_uint16, c_uint32, wintypes
 from enum import Enum
 
+import numpy as np
 import psutil
 import yaml
 
@@ -34,7 +35,7 @@ class D_Types(Enum):
     INT = 0
     STRING = 1
     BYTE = 2
-    BOOL = 3
+    BOOLEAN = 3
     WORD = 4
 
 
@@ -42,7 +43,7 @@ d_types: dict[D_Types, c_uint32 | c_byte | c_bool | c_uint16 | Array[c_char]] = 
     D_Types.INT: ctypes.c_uint32(),
     D_Types.STRING: ctypes.create_string_buffer(256),
     D_Types.BYTE: ctypes.c_byte(),
-    D_Types.BOOL: ctypes.c_bool(),
+    D_Types.BOOLEAN: ctypes.c_bool(),
     D_Types.WORD: ctypes.c_uint16(),
 }
 
@@ -64,6 +65,11 @@ class MemoryReadError(Exception):
             details.append(f"Address: {hex(self.address) if isinstance(self.address, int) else self.address}")
         details.append(self.message)
         return "; ".join(details)
+
+
+def slice_ctypes_array(ctypes_array: Array, offset: int, length: int) -> Array:
+    array_type = ctypes.c_byte * length
+    return array_type(*ctypes_array[offset : offset + length])  # noqa: E203
 
 
 def read_memory(process_name: str, address: int, dtype: D_Types) -> int | bool | str:
@@ -129,7 +135,9 @@ def read_memory(process_name: str, address: int, dtype: D_Types) -> int | bool |
         raise e
 
 
-def read_memory_chunk(process_name: str, base_address: int, offsets: list[int]) -> list[int]:
+def read_memory_chunk(
+    process_name: str, base_address: int, offsets: list[int], dtype: D_Types | list[D_Types]
+) -> list[int | str | bool]:
     """Read a chunk of memory at different offsets.
 
     Args:
@@ -151,6 +159,15 @@ def read_memory_chunk(process_name: str, base_address: int, offsets: list[int]) 
         if not offsets:
             raise ValueError("Offsets list cannot be empty.")
 
+        if not isinstance(dtype, list):
+            dtype = [dtype] * len(offsets)
+
+        if len(dtype) != len(offsets):
+            raise ValueError("The length of dtype list must match the length of offsets.")
+
+        if offsets != sorted(offsets):
+            offsets, dtype = map(list, zip(*sorted(zip(offsets, dtype))))
+
         # Locate the process
         proc = get_process_by_name(process_name)
         if not proc:
@@ -163,10 +180,17 @@ def read_memory_chunk(process_name: str, base_address: int, offsets: list[int]) 
 
         try:
             # Calculate the range of memory to read
-            size = max(offsets) + 4  # Adjust for last type size
+            type_sizes = {
+                D_Types.INT: ctypes.sizeof(c_uint32()),
+                D_Types.STRING: 256,  # Assuming a fixed size for strings
+                D_Types.BYTE: ctypes.sizeof(c_byte()),
+                D_Types.BOOLEAN: ctypes.sizeof(c_bool()),
+                D_Types.WORD: ctypes.sizeof(c_uint16()),
+            }
+            size = offsets[-1] + type_sizes[dtype[-1]]
 
             # Read the contiguous memory block
-            buffer = (ctypes.c_ubyte * size)()
+            buffer: Array[c_byte] = (ctypes.c_byte * size)()
             bytes_read = wintypes.SIZE()
 
             success = ctypes.windll.kernel32.ReadProcessMemory(
@@ -182,9 +206,28 @@ def read_memory_chunk(process_name: str, base_address: int, offsets: list[int]) 
 
             # Extract the values dynamically
             results = []
-            for offset in offsets:
-                # Assuming 2-byte word data; adjust for other types if needed
-                value = buffer[offset] | (buffer[offset + 1] << 8)
+            for offset, d in zip(offsets, dtype):
+                slice = slice_ctypes_array(buffer, offset, type_sizes[d])
+                if d == D_Types.INT:
+                    value: int | str | bool = ctypes.c_uint32.from_buffer_copy(slice).value
+                elif d == D_Types.STRING:
+                    # print(chardet.detect(bytes(np.mod(buffer[offset : offset + type_sizes[d]], 256).tolist())))
+                    value = ctypes.create_string_buffer(
+                        bytes(np.mod(buffer[offset : offset + type_sizes[d]], 256))  # noqa: E203
+                    ).value.decode("ISO-8859-1")
+                elif d == D_Types.BYTE:
+                    value = ctypes.c_byte.from_buffer_copy(slice).value
+                elif d == D_Types.BOOLEAN:
+                    value = ctypes.c_bool.from_buffer_copy(slice).value
+                elif d == D_Types.WORD:
+                    value = ctypes.c_uint16.from_buffer_copy(slice).value
+                else:
+                    raise ValueError(
+                        (
+                            "ctypes.c_uint32.from_buffer_copy(buffer[offset : offset + type_sizes[d]])"
+                            f".valueUnsupported data type: {d}"
+                        )
+                    )
                 results.append(value)
 
             return results
