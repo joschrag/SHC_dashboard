@@ -1,0 +1,35 @@
+address: 0x145D4D8 #0x145D048 #0x148E598
+type: integer
+category: unit
+offsets:
+  coloroffset: 0x4    #{0:white,1:red,2:orange,3:yellow,4:blue,5:black,6:purple,7:cyan,8:green, >9: game}
+  moving: 0x24
+  selected: 0x28
+  hp_bar_percent: 0x2C  #{0-10: 0-100%, 19: walls up,20: walls down, 21: compass_north, 22: compass_west, 23: compass_south, 
+  #                     24: compass_east, 25: compass_west, 26: compass_south, 27: compass_east,28: compass_north,
+  #                     29: zoom_in, 30: zoom_out}
+  owneroffset: 0x74
+  cur_hp: 0x3BC
+  max_hp: 0x3C0
+  x_coord_cam: 0x410
+  y_coord_cam: 0x414
+  offset: 0x490
+  unknown:
+    - 0x0C
+    - 0x10
+    - 0x14
+    - 0x20    # y_texture offset ? 
+    - 0x38    # non-settable
+    - 0x3C
+    - 0x2C4
+    - 0x2D0
+    - 0x3C4
+    - 0x3C8
+    - 0x3E0
+    - 0x3F0
+    - 0x424
+    - 0x42C
+    - 0x430
+    - 0x438
+total: 0x145CA2C
+  
