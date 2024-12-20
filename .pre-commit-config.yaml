@@ -26,3 +26,10 @@ repos:
     rev: v8.21.3
     hooks:
       - id: gitleaks
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0  # pick a git hash / tag to point to
+    hooks:
+        - id: pydocstyle
+          # https://github.com/PyCQA/pydocstyle/blob/master/docs/snippets/cli.rst
+          args:
+            - --convention=google
