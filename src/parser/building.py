@@ -55,22 +55,22 @@ class Building:
             PROCESS_NAME,
             self.base,
             [i * self.offset + extra_off for i in range(num_buildings) for extra_off in offset_list],
+            D_Types.WORD,
         )
         buildings_array = np.array(buildings_list).reshape((num_buildings, len(offset_list)))
         if player_id != 0:
             mask = buildings_array[:, 2] == player_id
         else:
-            mask = (buildings_array[:, 2] >= 0) & (buildings_array[:, 2] <= 8)
+            mask = (buildings_array[:, 2] >= 1) & (buildings_array[:, 2] <= 8)
 
         filtered_buildings = buildings_array[mask]
 
         building_names_array = np.vectorize(self.building_names.get)(filtered_buildings[:, 0])
-        address_array = (self.base + np.arange(buildings_array.shape[0]) * self.offset).reshape(-1, 1)
-        buildings_array = np.column_stack((address_array, building_names_array, filtered_buildings))
+        # address_array = (self.base + np.arange(buildings_array.shape[0]) * self.offset).reshape(-1, 1)
+        buildings_array = np.column_stack((building_names_array, filtered_buildings))
         return pd.DataFrame(
             buildings_array,
             columns=[
-                "address",
                 "b_name",
                 "ID",
                 "owner",
@@ -81,14 +81,13 @@ class Building:
             ],
         ).astype(
             {
-                "address": pd.Int64Dtype(),
                 "b_name": pd.StringDtype(),
                 "ID": pd.Int64Dtype(),
-                "owner": pd.Int16Dtype(),
-                "workers_needed": pd.Int16Dtype(),
-                "workers_working": pd.Int16Dtype(),
-                "workers_missing": pd.Int16Dtype(),
-                "snoozed": pd.Int16Dtype(),
+                "owner": pd.Int32Dtype(),
+                "workers_needed": pd.Int32Dtype(),
+                "workers_working": pd.Int32Dtype(),
+                "workers_missing": pd.Int32Dtype(),
+                "snoozed": pd.Int32Dtype(),
             }
         )
 
