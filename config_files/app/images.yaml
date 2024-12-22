@@ -1,0 +1,144 @@
+popularity:
+  img_path: "popularity.png"
+ale_coverage:
+  img_path: "Image644.png"
+taxes:
+  img_path: "Image646.png"
+economy:
+  img_path: "economy.png"
+gold:
+  img_path: "Image646.png"
+total_gold:
+  img_path: "Image730.png"
+goods_sent:
+  img_path: "Image281.png"
+goods_received:
+  img_path: "Image284.png"
+wood:
+  img_path: "Image620.png"
+stone:
+  img_path: "Image624.png"
+iron:
+  img_path: "Image628.png"
+pitch:
+  img_path: "Image632.png"
+bows:
+  img_path: "Image650.png"
+crossbows:
+  img_path: "Image652.png"
+spears:
+  img_path: "Image654.png"
+pikes:
+  img_path: "Image656.png"
+maces:
+  img_path: "Image658.png"
+swords:
+  img_path: "Image660.png"
+leather_armor:
+  img_path: "Image662.png"
+metalarmor:
+  img_path: "Image664.png"
+food:
+  img_path: "Image131.png"
+total_food:
+  img_path: "Image131.png"
+apples:
+  img_path: "Image642.png"
+cheese:
+  img_path: "Image638.png"
+meat:
+  img_path: "Image640.png"
+wheat:
+  img_path: "Image634.png"
+flour:
+  img_path: "Image648.png"
+bread:
+  img_path: "Image636.png"
+hops:
+  img_path: "Image622.png"
+ale:
+  img_path: "Image644.png"
+buildings:
+  img_path: "contents07_town_buildings.png"
+num_buildings:
+  img_path: "contents07_town_buildings.png"
+num_eco_buildings:
+  img_path: "Image658.png"
+num_farms:
+  img_path: "Image660.png"
+num_iron_mines:
+  img_path: "ST05_Iron_Mine.png"
+num_pitchrigs:
+  img_path: "ST06_Pitch_Digger.png"
+num_quarries:
+  img_path: "ST20_Quarry.png"
+snoozed:
+  img_path: "Image662.png"
+num_not_working:
+  img_path: "Image664.png"
+num_bakery:
+  img_path: "Image664.png"
+num_inns:
+  img_path: "Image570.png"
+military:
+  img_path: "Image570.png"
+total_units:
+  img_path: "Image570.png"
+melee:
+  img_path: "armys24.png"
+ranged:
+  img_path: "armys1.png"
+num_siege_engines:
+  img_path: "armys13.png"
+e_archer:
+  img_path: "armys1.png"
+spearman:
+  img_path: "armys2.png"
+maceman:
+  img_path: "armys3.png"
+crossbowman:
+  img_path: "armys4.png"
+pikeman:
+  img_path: "armys5.png"
+e_swordsman:
+  img_path: "armys6.png"
+knight:
+  img_path: "armys7.png"
+a_archer:
+  img_path: "armys19.png"
+slave:
+  img_path: "armys20.png"
+slinger:
+  img_path: "armys21.png"
+assassin:
+  img_path: "armys22.png"
+h_archer:
+  img_path: "armys23.png"
+a_swordsman:
+  img_path: "armys24.png"
+firethrower:
+  img_path: "armys25.png"
+monk:
+  img_path: "armys9.png"
+engineer:
+  img_path: "armys8.png"
+ladderman:
+  img_path: "armys10.png"
+tunneler:
+  img_path: "armys18.png"
+catapult:
+  img_path: "armys16.png"
+trebuchet:
+  img_path: "armys15.png"
+siege_tower:
+  img_path: "armys13.png"
+battering_ram:
+  img_path: "armys12.png"
+shield:
+  img_path: "armys11.png"
+fireballista:
+  img_path: "armys26.png"
+mangonel:
+  img_path: "armys14.png"
+tower_ballista:
+  img_path: "armys17.png"
