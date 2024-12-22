@@ -8,24 +8,33 @@ from dash import Input, Output, State, callback
 from dash.exceptions import PreventUpdate
 
 from src import PROCESS_NAME
-from src.stats.building import Building
-from src.stats.lord import Lord
-from src.stats.read_data import read_config
-from src.stats.state_machine import StateMachine
-from src.stats.unit import Unit
+from src.parser.building import Building
+from src.parser.lord import Lord
+from src.parser.read_data import read_config
+from src.parser.state_machine import StateMachine
+from src.parser.unit import Unit
 
 logger = logging.getLogger(__name__)
-build_config = read_config("building")
+build_config = read_config("building", "memory")
 b = Building.from_dict(build_config)
-lord_config = read_config("lord")
+lord_config = read_config("lord", "memory")
 lord = Lord.from_dict(lord_config)
-unit_config = read_config("unit")
+unit_config = read_config("unit", "memory")
 unit = Unit.from_dict(unit_config)
 sm = StateMachine()
 
 
 @callback(Output("game_store", "data"), Input("game_read", "n_intervals"), State("game_store", "data"))
 def read_data_from_memory(n_intervals: int, data: list | None) -> list:
+    """Read values from game memory.
+
+    Args:
+        n_intervals (int): number of intervals passed
+        data (list | None): currently stored game data
+
+    Returns:
+        list: game data
+    """
     data = data or []
     game_data = pd.DataFrame(data)
     state = sm.update_state(PROCESS_NAME)
@@ -52,6 +61,18 @@ def read_data_from_memory(n_intervals: int, data: list | None) -> list:
 
 @callback(Output("lord_store", "data"), Input("game_read", "n_intervals"), State("lord_store", "data"))
 def save_lord_names(n_intervals: int, data: list | None) -> list:
+    """Store the lord names into app memory.
+
+    Args:
+        n_intervals (int): number of intervals passed
+        data (list | None): last stored lord names
+
+    Raises:
+        PreventUpdate: No update needed
+
+    Returns:
+        list: lord names list
+    """
     if any((s > 0 for s in np.array(data).shape)):
         array = np.array(data)
     else:
