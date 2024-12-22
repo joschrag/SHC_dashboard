@@ -1,11 +1,11 @@
 map_offsets:
   offset: 0x0
   memory:
-      - address: 0x24b649c
-        stat_offsets:
-          - name: map_name
-            offset: 0x0
-            type: string
+    - address: 0x24b649c
+      stat_offsets:
+        - name: map_name
+          offset: 0x0
+          type: string
 lord_basic_offsets:
   offset: 0x1
   memory:
@@ -31,7 +31,7 @@ lord_global_offsets:
     - address: 0x24ba564
       stat_offsets:
         - name: total_gold
-          offset: 0x0
+          offset: 0x4
           type: int
         - name: weighted_troops_killed
           offset: 0x2dc
@@ -153,9 +153,6 @@ lord_stat_offsets:
         - name: num_inns
           offset: 0x234
           type: int
-        # - name: working_woodcutters
-        #   offset: 0xa80
-        #   type: int
         - name: num_bakery
           offset: 0xaf4
           type: int
