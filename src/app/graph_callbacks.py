@@ -15,11 +15,21 @@ logger = logging.getLogger(__name__)
     Output("stat-display", "figure"),
     Output("col_store", "data"),
     Input("game_store", "data"),
-    Input({"type": "col-switch", "index": ALL}, "n_clicks"),
+    Input({"type": "graph-switch", "index": ALL}, "n_clicks"),
     State("col_store", "data"),
 )
-def update_graph(data: list, _: dict[str, int], last_column: str | None):
-    column = last_column or "num_buildings"
+def update_graph(data: list, _: dict[str, int], last_column: str | None) -> tuple:
+    """Update the display graph.
+
+    Args:
+        data (list): stored game data
+        _ (dict[str, int]): number of clicks on the subcategories
+        last_column (str | None): last selected subcategory
+
+    Returns:
+        tuple: updated graph, selected subcategory
+    """
+    column = last_column or "popularity"
     fig = go.Figure()
     logger.info(ctx.triggered_id)
     if data and ctx.triggered_id is not None:
@@ -30,9 +40,9 @@ def update_graph(data: list, _: dict[str, int], last_column: str | None):
         df = df.sort_values(["p_ID", "time"])
         # Identify outliers where the value is far from both its neighbors
         df["is_outlier"] = (
-            ((df["num_buildings"].shift(1) - df["num_buildings"]).abs() > tolerance)
-            & ((df["num_buildings"].shift(-1) - df["num_buildings"]).abs() > tolerance)
-            & ((df["num_buildings"].shift(1) - df["num_buildings"].shift(-1)).abs() <= tolerance)
+            ((df[column].shift(1) - df[column]).abs() > tolerance)
+            & ((df[column].shift(-1) - df[column]).abs() > tolerance)
+            & ((df[column].shift(1) - df[column].shift(-1)).abs() <= tolerance)
             & (df["p_ID"].shift(1) == df["p_ID"])
         )
 
