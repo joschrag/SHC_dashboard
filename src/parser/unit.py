@@ -1,23 +1,51 @@
+"""Script containing code to manage unit related tasks and calculations."""
+
 import numpy as np
 import pandas as pd
 
 from src import PROCESS_NAME
-from src.stats.read_data import D_Types, read_config, read_memory, read_memory_chunk
+from src.parser.read_data import D_Types, read_config, read_memory, read_memory_chunk
 
 
 class MemoryAddress:
-    def __init__(self, base, offset, val_offset):
+    """Class to represent a memory address."""
+
+    def __init__(self, base: int, offset: int, val_offset: int):
+        """Initialize the memory.
+
+        Args:
+            base (int): memory base address
+            offset (int): offset for each player
+            val_offset (int): value offset from base address
+        """
         self.base = base
         self.offset = offset
         self.val_offset = val_offset
 
-    def calculate_address(self, multiplier):
+    def calculate_address(self, multiplier: int) -> int:
+        """Calculate the memory address for a given multiplier.
+
+        Args:
+            multiplier (int): player id to calculate address for
+
+        Returns:
+            int: address of the object
+        """
         return self.base + multiplier * self.offset + self.val_offset
 
 
 class Unit:
+    """Class to read unit values and calculate statistics."""
+
     def __init__(self, base: int, offsets: dict, total_units: int) -> None:
-        self.unit_names = read_config("names")["Units"]
+        """Initialize the unit class with memory address and offsets.
+
+        Args:
+            base (int): base memory address
+            offsets (dict): dictionary with offset values
+            total_units (int): address with total unit value
+        """
+        self.unit_names = read_config("names", "memory")["Units"]
         self.base = base
         self.offset = offsets["offset"]
         self.color = offsets["coloroffset"]
@@ -35,9 +63,25 @@ class Unit:
 
     @staticmethod
     def from_dict(config: dict) -> "Unit":
+        """Instantiate the class from a config dicionary.
+
+        Args:
+            config (dict): configuration dict
+
+        Returns:
+            Unit: instantiated class object
+        """
         return Unit(config["address"], config["offsets"], config["total"])
 
     def list_units(self, player_id: int | None = None) -> pd.DataFrame:
+        """Read unit data from memory into a dataframe.
+
+        Args:
+            player_id (int | None, optional): Player id to filter. Defaults to None.
+
+        Returns:
+            pd.DataFrame: dataframe with memory values
+        """
         num_units = int(read_memory(PROCESS_NAME, self.total_units, D_Types.INT))
         offset_list = [
             0,
@@ -57,19 +101,19 @@ class Unit:
             [i * self.offset + extra_off for i in range(num_units) for extra_off in offset_list],
             D_Types.WORD,
         )
-        unit_info = np.array(unit_info).reshape((num_units, len(offset_list)))
+        unit_arr = np.array(unit_info).reshape((num_units, len(offset_list)))
         if player_id is not None:
-            mask = unit_info[:, 2] == player_id
+            mask = unit_arr[:, 2] == player_id
         else:
-            mask = (unit_info[:, 2] >= 0) & (unit_info[:, 2] <= 8)
+            mask = (unit_arr[:, 2] >= 0) & (unit_arr[:, 2] <= 8)
 
-        filtered_units = unit_info[mask]
+        filtered_units = unit_arr[mask]
 
         unit_names_array = np.vectorize(self.unit_names.get)(filtered_units[:, 0])
-        address_array = (self.base + np.arange(unit_info.shape[0]) * self.offset)[mask].reshape(-1, 1)
-        unit_info = np.column_stack((address_array, unit_names_array, filtered_units))
+        address_array = (self.base + np.arange(unit_arr.shape[0]) * self.offset)[mask].reshape(-1, 1)
+        unit_arr = np.column_stack((address_array, unit_names_array, filtered_units))
         return pd.DataFrame(
-            unit_info,
+            unit_arr,
             columns=[
                 "address",
                 "unit_name",
@@ -102,6 +146,14 @@ class Unit:
         )
 
     def list_units_exp(self, player_id: int | None = None) -> pd.DataFrame:
+        """List the unknown flags data into a dataframe.
+
+        Args:
+            player_id (int | None, optional): Player id to filter. Defaults to None.
+
+        Returns:
+            pd.DataFrame: dataframe with memory values
+        """
         num_units = int(read_memory(PROCESS_NAME, self.total_units, D_Types.INT))
         offset_list = [0, *[obj.val_offset for obj in self.unknown]]
         unit_info = read_memory_chunk(
@@ -110,19 +162,19 @@ class Unit:
             [i * self.offset + extra_off for i in range(num_units) for extra_off in offset_list],
             D_Types.WORD,
         )
-        unit_info = np.array(unit_info).reshape((num_units, len(offset_list)))
+        unit_arr = np.array(unit_info).reshape((num_units, len(offset_list)))
         if player_id is not None:
-            mask = unit_info[:, 2] == player_id
+            mask = unit_arr[:, 2] == player_id
         else:
-            mask = (unit_info[:, 2] >= 0) & (unit_info[:, 2] <= 8)
+            mask = (unit_arr[:, 2] >= 0) & (unit_arr[:, 2] <= 8)
 
-        filtered_units = unit_info[mask]
+        filtered_units = unit_arr[mask]
 
         unit_names_array = np.vectorize(self.unit_names.get)(filtered_units[:, 0])
-        address_array = (self.base + np.arange(unit_info.shape[0]) * self.offset).reshape(-1, 1)
-        unit_info = np.column_stack((address_array, unit_names_array, filtered_units))
+        address_array = (self.base + np.arange(unit_arr.shape[0]) * self.offset).reshape(-1, 1)
+        unit_arr = np.column_stack((address_array, unit_names_array, filtered_units))
         return pd.DataFrame(
-            unit_info,
+            unit_arr,
             columns=[
                 "address",
                 "unit_name",
@@ -132,6 +184,14 @@ class Unit:
         )
 
     def calculate_units(self, player_id: int | None = None) -> pd.DataFrame:
+        """Calculate unit stats from data.
+
+        Args:
+            player_id (int | None, optional): player to filter. Defaults to None.
+
+        Returns:
+            pd.DataFrame: dataframe with the unit stats
+        """
         units = self.list_units(player_id)
         unit_stats_df = units.groupby(["p_ID", "unit_name"]).size().unstack(fill_value=0)
         return unit_stats_df
