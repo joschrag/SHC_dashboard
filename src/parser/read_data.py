@@ -253,10 +253,9 @@ def read_memory_chunk(
                 if d == D_Types.INT:
                     value: int | str | bool = ctypes.c_uint32.from_buffer_copy(slice).value
                 elif d == D_Types.STRING:
-                    # print(chardet.detect(bytes(np.mod(buffer[offset : offset + type_sizes[d]], 256).tolist())))
-                    value = ctypes.create_string_buffer(
-                        bytes(np.mod(buffer[offset : offset + type_sizes[d]], 256))  # noqa: E203
-                    ).value.decode("ISO-8859-1")
+                    raw_data = np.mod(buffer[offset : offset + type_sizes[d]], 256).astype(np.uint8)  # noqa: E203
+                    byte_data = raw_data.tobytes()
+                    value = ctypes.create_string_buffer(byte_data).value.decode("ISO-8859-1")
                 elif d == D_Types.BYTE:
                     value = ctypes.c_byte.from_buffer_copy(slice).value
                 elif d == D_Types.BOOLEAN:
