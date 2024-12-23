@@ -28,22 +28,22 @@ lord_global_offsets:
         - name: num_total_buildings
           offset: 0x9dccc
           type: int
-    - address: 0x24ba564
+    - address: 0x24ba560
       stat_offsets:
         - name: total_gold
           offset: 0x4
           type: int
         - name: weighted_troops_killed
-          offset: 0x2dc
+          offset: 0x2d8
           type: int
         - name: weighted_buildings_destroyed
-          offset: 0x300
+          offset: 0x2FC
           type: int
         - name: goods_received
-          offset: 0x348
+          offset: 0x344
           type: int
         - name: goods_sent
-          offset: 0x36c
+          offset: 0x368
           type: int
 lord_name_offsets:
   offset: 0x5a
@@ -61,7 +61,7 @@ lord_stat_offsets:
         - name: housing
           offset: 0x0
           type: word
-        - name: units
+        - name: total_units
           offset: 0x344
           type: int
         - name: siege_engines
