@@ -17,14 +17,16 @@ logger = logging.getLogger(__name__)
     Input("game_store", "data"),
     Input({"type": "graph-switch", "index": ALL}, "n_clicks"),
     State("col_store", "data"),
+    State("lord_store", "data"),
 )
-def update_graph(data: list, _: dict[str, int], last_column: str | None) -> tuple:
+def update_graph(data: list, _: dict[str, int], last_column: str | None, lord_names: list | None) -> tuple:
     """Update the display graph.
 
     Args:
         data (list): stored game data
         _ (dict[str, int]): number of clicks on the subcategories
         last_column (str | None): last selected subcategory
+        lord_names (list | None): list of lord names
 
     Returns:
         tuple: updated graph, selected subcategory
@@ -32,12 +34,13 @@ def update_graph(data: list, _: dict[str, int], last_column: str | None) -> tupl
     column = last_column or "popularity"
     fig = go.Figure()
     logger.info(ctx.triggered_id)
-    if data and ctx.triggered_id is not None:
+    if data and lord_names and ctx.triggered_id is not None:
         if isinstance(ctx.triggered_id, dict):
             column = ctx.triggered_id.get("index", "")
         df = pd.DataFrame(data)
         tolerance = 5
         df = df.sort_values(["p_ID", "time"])
+        df["lord_name"] = df["p_ID"].map({p_id: lord_names[p_id - 1] for p_id in df["p_ID"].unique()})
         # Identify outliers where the value is far from both its neighbors
         df["is_outlier"] = (
             ((df[column].shift(1) - df[column]).abs() > tolerance)
@@ -55,7 +58,7 @@ def update_graph(data: list, _: dict[str, int], last_column: str | None) -> tupl
                     x=group["time"],
                     y=group[column],
                     mode="lines",
-                    name=f"p_ID {p_id}",
+                    name=lord_names[p_id - 1],
                     marker_color=SHC_COLORS[p_id - 1],
                 )
             )
