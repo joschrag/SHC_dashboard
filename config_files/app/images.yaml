@@ -73,13 +73,13 @@ num_pitchrigs:
 num_quarries:
   img_path: "ST20_Quarry.png"
 snoozed:
-  img_path: "Image662.png"
+  img_path: "Image209.png"
 not_working:
-  img_path: "Image664.png"
+  img_path: "Image200.png"
 num_bakery:
-  img_path: "Image664.png"
+  img_path: "Image30.png"
 num_inns:
-  img_path: "Image570.png"
+  img_path: "Image45.png"
 military:
   img_path: "Image570.png"
 total_units:
