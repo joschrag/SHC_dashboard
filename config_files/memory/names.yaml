@@ -124,7 +124,7 @@ Units:
   15: artifacts
   16: artifacts
   17: peasant
-  18: europ archer
+  18: e_archer
   19: woodcutter
   20: fletcher walking
   21: ox
@@ -141,16 +141,16 @@ Units:
   32: quarry ox leader
   33: farm worker
   34: ladder from ladderman
-  35: ladder from ladderman
+  35: ladderman
   36: baker
   37: windmillboy outside
   38: artifacts
   39: spearman
   40: pikeman
   41: crossbowman
-  42: swordsman
+  42: e_swordsman
   43: maceman
-  44: knight horse
+  44: knight
   45: artifacts
   46: artifacts
   47: some worker
@@ -168,7 +168,7 @@ Units:
   59: armourer outside
   60: artifacts
   61: iron mine worker
-  62: catapult firing
+  62: catapult
   63: cow
   64: poleturner inside
   65: pitchrig worker inside
@@ -190,9 +190,9 @@ Units:
   81: unknown person walking and laying down
   82: siege tent
   83: mangonel
-  84: trebuchet loading
+  84: trebuchet
   85: glitchy worker
-  86: engineer (with shovel)
+  86: engineer
   87: artifacts
   88: hunter / ... / wheel of cheese
   89: hunter (with animal)
@@ -226,11 +226,11 @@ Units:
   117: dancing bear
   118: dancing bear
   119: dancing bear
-  120: tower ballista firing
-  121: shield walking
+  120: tower_ballista
+  121: shield
   122: part of something
-  123: part of battering ram
-  124: parts of siege tower
+  123: battering_ram
+  124: siege_tower
   125: chicken shadow
   126: chicken
   127: mother with child (hovel)
@@ -296,20 +296,19 @@ Units:
   187: something
   188: something
   189: flag / part of arab archer
-  190: arab archer
+  190: a_archer
   191: slave
   192: slinger
   193: assassin
   194: archer riding
-  195: arab swordsman
-  196: fire thrower
-  197: fire ballista engineers / firing
+  195: a_swordsman
+  196: firethrower
+  197: fireballista
   198: horse shadow
-  199: horse archer
+  199: h_archer
   200: part of dog and flag
   201: part of dog and flag
   202: dog shadow
   203: part of dog
   204: part of arab lord
   205: arab lord
-

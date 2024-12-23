@@ -88,7 +88,7 @@ melee:
   img_path: "armys24.png"
 ranged:
   img_path: "armys1.png"
-num_siege_engines:
+siege_engines:
   img_path: "armys13.png"
 e_archer:
   img_path: "armys1.png"

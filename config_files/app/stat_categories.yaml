@@ -43,7 +43,7 @@ military:
   - total_units
   - melee
   - ranged
-  - num_siege_engines
+  - siege_engines
   - e_archer
   - spearman
   - maceman
