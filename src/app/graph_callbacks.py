@@ -62,4 +62,23 @@ def update_graph(data: list, _: dict[str, int], last_column: str | None) -> tupl
 
         # Customize layout (optional)
         fig.update_layout(title=f"{column} over time", xaxis_title="Timesteps", yaxis_title=column)
+        # image_data = {
+        #     "source": dash.get_relative_path("/assets/img/open_book.png"),
+        #     "xref": "paper",
+        #     "yref": "paper",
+        #     "x": 0,
+        #     "y": 0,
+        #     "xanchor": "left",
+        #     "yanchor": "bottom",
+        #     "sizex": 1,
+        #     "sizey": 1,  # abs(full_fig.layout.yaxis.range[1] - full_fig.layout.yaxis.range[0]),
+        #     "sizing": "stretch",
+        #     "opacity": 0.6,
+        #     "layer": "below",
+        # }
+        # logger.info(fig.layout.images)
+        # if len(fig.layout.images) == 0:
+        #     fig.add_layout_image(image_data)
+        # else:
+        #     fig.update_layout_images(image_data)
     return fig, column
