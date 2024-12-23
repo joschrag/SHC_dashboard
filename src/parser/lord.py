@@ -1,3 +1,5 @@
+"""This script contains a class to handle all lord specific memory rreading and value calculation."""
+
 import numpy as np
 import pandas as pd
 
@@ -7,8 +9,19 @@ from .read_data import D_Types, read_memory_chunk
 
 
 class Lord:
-    def __init__(self, map: dict, lord_basic: dict, lord_global: dict, lord_name: dict, lord_stat: dict) -> None:
-        self.map = map
+    """Class to read lord values from game memory."""
+
+    def __init__(self, map_name: dict, lord_basic: dict, lord_global: dict, lord_name: dict, lord_stat: dict) -> None:
+        """Initialite Lord class.
+
+        Args:
+            map_name (dict): address of map name
+            lord_basic (dict): addresses of basic lord stats
+            lord_global (dict): addresses of global lord stats
+            lord_name (dict): addresses of lord names
+            lord_stat (dict): addresses of detailed lord stats
+        """
+        self.map_name = map_name
         self.lord_basic = lord_basic["memory"]
         self.lord_basic_off = lord_basic["offset"]
         self.lord_name = lord_name["memory"]
@@ -24,6 +37,14 @@ class Lord:
 
     @staticmethod
     def from_dict(config: dict) -> "Lord":
+        """Instantiate Lord class from config dictionary.
+
+        Args:
+            config (dict): config dictionary
+
+        Returns:
+            Lord: instantiated class object
+        """
         return Lord(
             config["map_offsets"],
             config["lord_basic_offsets"],
@@ -33,6 +54,7 @@ class Lord:
         )
 
     def get_active_lords(self) -> None:
+        """Read active lords from memory."""
         lord_basic = self.lord_basic[0]
         basic_offsets = [
             i * self.lord_basic_off + extra_off["offset"] for extra_off in lord_basic["stat_offsets"] for i in range(8)
@@ -50,6 +72,7 @@ class Lord:
         self.teams = lord_basic_arr[1, 0 : self.num_lords]  # noqa: E203
 
     def get_lord_names(self) -> None:
+        """Read names of lords from memory."""
         lord_name = self.lord_name[0]
         names_offsets = [
             i * self.lord_name_off + extra_off["offset"]
@@ -67,9 +90,14 @@ class Lord:
             names_offsets,
             dtypes,
         )
-        self.lord_names = np.reshape(np.array(lord_names_mem), (self.num_lords, 1))
+        self.lord_names = np.array(lord_names_mem)
 
     def get_lord_global_stats(self) -> pd.DataFrame:
+        """Read global lord stats from memory.
+
+        Returns:
+            pd.DataFrame: global lord stats
+        """
         cols = ["p_ID"] + [
             extra_off["name"] for lord_global in self.lord_global for extra_off in lord_global["stat_offsets"]
         ]
@@ -102,6 +130,11 @@ class Lord:
         return pd.DataFrame(total_arr, columns=cols)
 
     def get_lord_detailed_stats(self) -> pd.DataFrame:
+        """Read detailed lord stats from memory.
+
+        Returns:
+            pd.DataFrame: detailed lord stats
+        """
         cols = [extra_off["name"] for lord_stat in self.lord_stat for extra_off in lord_stat["stat_offsets"]]
         total_arr = np.empty((self.num_lords, 0))
         for lord_stat in self.lord_stat:
