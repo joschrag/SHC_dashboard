@@ -44,7 +44,7 @@ def update_graph(data: list, _: dict[str, int], last_column: str | None) -> tupl
             & ((df[column].shift(-1) - df[column]).abs() > tolerance)
             & ((df[column].shift(1) - df[column].shift(-1)).abs() <= tolerance)
             & (df["p_ID"].shift(1) == df["p_ID"])
-        )
+        ) | (df[column] > 10**9)
 
         # Filter out the outliers
         df = df.loc[~df["is_outlier"], :].drop(columns=["is_outlier"])
