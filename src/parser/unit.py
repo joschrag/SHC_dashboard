@@ -47,17 +47,11 @@ class Unit:
         """
         self.unit_names = read_config("names", "memory")["Units"]
         self.base = base
-        self.offset = offsets["offset"]
-        self.color = offsets["coloroffset"]
-        self.owner = offsets["owneroffset"]
-        self.moving = offsets["moving"]
-        self.selected = offsets["selected"]
-        self.hp_bar = offsets["hp_bar_percent"]
-        self.cur_hp = offsets["cur_hp"]
-        self.max_hp = offsets["max_hp"]
-        self.x = offsets["x_coord_cam"]
-        self.y = offsets["y_coord_cam"]
-        self.unknown = [MemoryAddress(self.base, self.offset, unknown_offset) for unknown_offset in offsets["unknown"]]
+        self.offset = offsets.pop("offset", 0)
+        self.value_offsets = offsets
+        self.unknown = [
+            MemoryAddress(self.base, self.offset, unknown_offset) for unknown_offset in offsets.pop("unknown", [])
+        ]
 
         self.total_units = total_units
 
@@ -83,18 +77,16 @@ class Unit:
             pd.DataFrame: dataframe with memory values
         """
         num_units = int(read_memory(PROCESS_NAME, self.total_units, D_Types.INT))
-        offset_list = [
-            0,
-            self.color,
-            self.moving,
-            self.selected,
-            self.hp_bar,
-            self.owner,
-            self.cur_hp,
-            self.max_hp,
-            self.x,
-            self.y,
-        ]
+        if num_units == 0:
+            return pd.DataFrame(
+                columns=[
+                    "address",
+                    "unit_name",
+                    "ID",
+                    *self.value_offsets.keys(),
+                ],
+            )
+        offset_list = [0, *self.value_offsets.values()]
         unit_info = read_memory_chunk(
             PROCESS_NAME,
             self.base,
@@ -118,30 +110,14 @@ class Unit:
                 "address",
                 "unit_name",
                 "ID",
-                "color",
-                "moving",
-                "selected",
-                "hp_percent",
-                "p_ID",
-                "cur_hp",
-                "max_hp",
-                "x",
-                "y",
+                *self.value_offsets.keys(),
             ],
         ).astype(
             {
                 "address": pd.Int64Dtype(),
                 "unit_name": pd.StringDtype(),
                 "ID": pd.Int64Dtype(),
-                "color": pd.Int64Dtype(),
-                "moving": pd.Int32Dtype(),
-                "selected": pd.Int32Dtype(),
-                "hp_percent": pd.Int32Dtype(),
-                "p_ID": pd.Int32Dtype(),
-                "cur_hp": pd.Int64Dtype(),
-                "max_hp": pd.Int64Dtype(),
-                "x": pd.Int64Dtype(),
-                "y": pd.Int64Dtype(),
+                **{key: pd.Int64Dtype() for key in self.value_offsets.keys()},
             }
         )
 
@@ -193,5 +169,13 @@ class Unit:
             pd.DataFrame: dataframe with the unit stats
         """
         units = self.list_units(player_id)
-        unit_stats_df = units.groupby(["p_ID", "unit_name"]).size().unstack(fill_value=0)
+        unit_list = [18, 35, 39, 40, 41, 42, 43, 44, 106, 109, 190, 191, 192, 193, 195, 196, 199]
+        siege_engines = [62, 83, 84, 120, 121, 123, 124, 197]
+        army = units.loc[units.ID.isin(unit_list)]
+        se_army = units.loc[units.ID.isin(siege_engines)]
+        se_stats_df = se_army.groupby(["p_ID", "unit_name"]).size().unstack(fill_value=0)
+        unit_stats_df = army.groupby(["p_ID", "unit_name"]).size().unstack(fill_value=0)
+        unit_stats_df = pd.concat([unit_stats_df, se_stats_df], axis=1)
+        tmp_result = army.groupby(["p_ID", "is_ranged"]).size().unstack(fill_value=0)
+        unit_stats_df[["melee", "ranged"]] = tmp_result.reindex(columns=[0, 1], fill_value=0).fillna(0)
         return unit_stats_df
