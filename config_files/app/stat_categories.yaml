@@ -36,7 +36,7 @@ buildings:
   - num_pitchrigs
   - num_quarries
   - snoozed
-  - num_not_working
+  - not_working
   - num_inns
   - num_bakery
 military:

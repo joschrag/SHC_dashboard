@@ -133,4 +133,9 @@ class Building:
             .groupby("owner")
             .sum()
         )
+        building_info_df[["not_working"]] = (
+            building_mem_df.loc[building_mem_df["workers_missing"] > 0, ["owner", "workers_missing"]]
+            .groupby("owner")
+            .size()
+        )
         return building_info_df.reset_index(names=["p_ID"])
