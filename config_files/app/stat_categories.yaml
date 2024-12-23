@@ -18,7 +18,7 @@ economy:
   - maces
   - swords
   - leather_armor
-  - metalarmor
+  - metal_armor
 food:
   - total_food
   - wheat
@@ -59,7 +59,8 @@ military:
   - a_swordsman
   - firethrower
   - monk
-  - engineer
+  # - engineer
+
   - ladderman
   - tunneler
   - catapult

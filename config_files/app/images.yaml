@@ -36,7 +36,7 @@ swords:
   img_path: "Image660.png"
 leather_armor:
   img_path: "Image662.png"
-metalarmor:
+metal_armor:
   img_path: "Image664.png"
 food:
   img_path: "Image131.png"
