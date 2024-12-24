@@ -2,9 +2,11 @@
 
 import logging
 
+import dash
 import pandas as pd
 import plotly.graph_objects as go
 from dash import ALL, Input, Output, State, callback, ctx
+from dash.exceptions import PreventUpdate
 
 from src import SHC_COLORS
 
@@ -18,70 +20,65 @@ logger = logging.getLogger(__name__)
     Input({"type": "graph-switch", "index": ALL}, "n_clicks"),
     State("col_store", "data"),
     State("lord_store", "data"),
+    State("stat-display", "figure"),
 )
-def update_graph(data: list, _: dict[str, int], last_column: str | None, lord_names: list | None) -> tuple:
-    """Update the display graph.
-
-    Args:
-        data (list): stored game data
-        _ (dict[str, int]): number of clicks on the subcategories
-        last_column (str | None): last selected subcategory
-        lord_names (list | None): list of lord names
-
-    Returns:
-        tuple: updated graph, selected subcategory
-    """
+def update_graph(game_data, _, last_column, lord_data, current_fig):
+    """Update the display graph based on game and lord data."""
     column = last_column or "popularity"
-    fig = go.Figure()
-    logger.info(ctx.triggered_id)
-    if data and lord_names and ctx.triggered_id is not None:
-        if isinstance(ctx.triggered_id, dict):
-            column = ctx.triggered_id.get("index", "")
-        df = pd.DataFrame(data)
-        tolerance = 5
-        df = df.sort_values(["p_ID", "time"])
-        df["lord_name"] = df["p_ID"].map({p_id: lord_names[p_id - 1] for p_id in df["p_ID"].unique()})
-        # Identify outliers where the value is far from both its neighbors
-        df["is_outlier"] = (
-            ((df[column].shift(1) - df[column]).abs() > tolerance)
-            & ((df[column].shift(-1) - df[column]).abs() > tolerance)
-            & ((df[column].shift(1) - df[column].shift(-1)).abs() <= tolerance)
-            & (df["p_ID"].shift(1) == df["p_ID"])
-        ) | (df[column] > 10**9)
+    figure = go.Figure(current_fig) if current_fig else go.Figure()
 
-        # Filter out the outliers
-        df = df.loc[~df["is_outlier"], :].drop(columns=["is_outlier"])
+    if not (game_data and lord_data and ctx.triggered_id):
+        raise PreventUpdate()
+
+    if isinstance(ctx.triggered_id, dict):
+        column = ctx.triggered_id.get("index", column)
+
+    df = pd.DataFrame(game_data).sort_values(["p_ID", "time"])
+    df = df.merge(pd.DataFrame(lord_data), on="p_ID", how="left")
+
+    # Identify and remove outliers
+    tolerance = 5
+    df["is_outlier"] = (
+        ((df[column].shift(1) - df[column]).abs() > tolerance)
+        & ((df[column].shift(-1) - df[column]).abs() > tolerance)
+        & ((df[column].shift(1) - df[column].shift(-1)).abs() <= tolerance)
+        & (df["p_ID"].shift(1) == df["p_ID"])
+    ) | (df[column] > 10**9)
+    df = df[~df["is_outlier"]]
+
+    # Patch or add data to the figure
+    if figure.data:
+        patched_figure = dash.Patch()
+        max_x = max(max(filter(None, trace.x)) for trace in figure.data if trace.x is not None)
+        df = df[df["time"] > max_x]
+
         for p_id, group in df.groupby("p_ID"):
-            assert isinstance(p_id, int)
-            fig.add_trace(
-                go.Scatter(
-                    x=group["time"],
-                    y=group[column],
-                    mode="lines",
-                    name=lord_names[p_id - 1],
-                    marker_color=SHC_COLORS[p_id - 1],
-                )
-            )
+            patched_figure["data"][p_id - 1]["x"].extend(group["time"].tolist())
+            patched_figure["data"][p_id - 1]["y"].extend(group[column].tolist())
 
-        # Customize layout (optional)
-        fig.update_layout(title=f"{column} over time", xaxis_title="Timesteps", yaxis_title=column)
-        # image_data = {
-        #     "source": dash.get_relative_path("/assets/img/open_book.png"),
-        #     "xref": "paper",
-        #     "yref": "paper",
-        #     "x": 0,
-        #     "y": 0,
-        #     "xanchor": "left",
-        #     "yanchor": "bottom",
-        #     "sizex": 1,
-        #     "sizey": 1,  # abs(full_fig.layout.yaxis.range[1] - full_fig.layout.yaxis.range[0]),
-        #     "sizing": "stretch",
-        #     "opacity": 0.6,
-        #     "layer": "below",
-        # }
-        # logger.info(fig.layout.images)
-        # if len(fig.layout.images) == 0:
-        #     fig.add_layout_image(image_data)
-        # else:
-        #     fig.update_layout_images(image_data)
-    return fig, column
+        return patched_figure, column
+
+    for p_id, group in df.groupby("p_ID"):
+        assert isinstance(p_id, int)
+        team = group["teams"].iloc[0] if not group["teams"].isnull().all() else None
+        legendgroup = f"Team {team}" if team else "No team"
+        figure.add_trace(
+            go.Scatter(
+                x=group["time"],
+                y=group[column],
+                mode="lines",
+                name=group["lord_names"].iloc[0],
+                marker_color=SHC_COLORS[p_id - 1],
+                legendgroup=legendgroup,
+                legendgrouptitle_text=legendgroup,
+            )
+        )
+
+    figure.update_layout(
+        legend={"groupclick": "toggleitem"},
+        title=f"{column} over time",
+        xaxis_title="Timesteps",
+        yaxis_title=column,
+    )
+
+    return figure, column
