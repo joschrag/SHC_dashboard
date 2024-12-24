@@ -18,11 +18,6 @@ dash.register_page(
 layout = [
     dbc.Row(
         [
-            dbc.Col(dcc.Dropdown(id="lord-select", multi=True)),
-        ]
-    ),
-    dbc.Row(
-        [
             dbc.Col(
                 html.Div(
                     [

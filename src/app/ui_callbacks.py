@@ -5,31 +5,10 @@ import logging
 import dash
 import dash_bootstrap_components as dbc
 from dash import ALL, Input, Output, State, callback, html, no_update
-from dash.exceptions import PreventUpdate
 
 from src import APP_CATEGORIES, IMAGE_PATHS
 
 logger = logging.getLogger(__name__)
-
-
-@callback(Output("lord-select", "options"), Input("lord_store", "data"))
-def display_lord_dd(lord_names: list) -> list:
-    """Display lord names in dropdown.
-
-    Args:
-        lord_names (list): list of lord names
-
-    Raises:
-        PreventUpdate: no update needed
-
-    Returns:
-        list: dropdown options populated with lord names
-    """
-    if lord_names:
-        return [{"label": "No owner", "value": 0}] + [
-            {"label": lord_name, "value": i + 1} for i, lord_name in enumerate(lord_names)
-        ]
-    raise PreventUpdate()
 
 
 @callback(
