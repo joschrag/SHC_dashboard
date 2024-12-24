@@ -73,14 +73,17 @@ def save_lord_names(n_intervals: int, data: list | None) -> list:
     Returns:
         list: lord names list
     """
-    if any((s > 0 for s in np.array(data).shape)):
-        array = np.array(data)
+    if isinstance(data, list) and any(data):
+        old_df = pd.DataFrame(data)
     else:
-        array = np.array([])
+        old_df = pd.DataFrame()
     state = sm.update_state(PROCESS_NAME)
     if state != "stats":
         lord.get_active_lords()
         lord.get_lord_names()
-        if not np.array_equal(lord.lord_names, array):
-            return lord.lord_names.tolist()
+        lord_df = pd.DataFrame(
+            {"p_ID": np.arange(1, lord.num_lords + 1), "lord_names": lord.lord_names, "teams": lord.teams}
+        )
+        if not lord_df.equals(old_df):
+            return lord_df.to_dict("records")
     raise PreventUpdate()
