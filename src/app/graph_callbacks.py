@@ -47,17 +47,18 @@ def update_graph(game_data, _, last_column, lord_data, current_fig):
     df = df[~df["is_outlier"]]
 
     # Patch or add data to the figure
-    if figure.data:
+    if figure.data and ctx.triggered_id == "game_store":
         patched_figure = dash.Patch()
-        max_x = max(max(filter(None, trace.x)) for trace in figure.data if trace.x is not None)
-        df = df[df["time"] > max_x]
+
+        max_x = max(max(filter(None, trace.x) or [0]) for trace in figure.data if trace.x is not None)
+        df = df[df["time"] >= max_x]
 
         for p_id, group in df.groupby("p_ID"):
             patched_figure["data"][p_id - 1]["x"].extend(group["time"].tolist())
             patched_figure["data"][p_id - 1]["y"].extend(group[column].tolist())
 
         return patched_figure, column
-
+    figure = go.Figure()
     for p_id, group in df.groupby("p_ID"):
         assert isinstance(p_id, int)
         team = group["teams"].iloc[0] if not group["teams"].isnull().all() else None
