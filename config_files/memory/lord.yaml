@@ -1,11 +1,25 @@
 map_offsets:
-  offset: 0x0
   memory:
-    - address: 0x24b649c
-      stat_offsets:
-        - name: map_name
-          offset: 0x0
-          type: string
+    address: 0x24b649c
+    stat_offsets:
+      - name: map_name
+        offset: 0x0
+        type: string
+      - name: advantage_setting
+        offset: 0x1ab0
+        type: byte
+      - name: start_year
+        offset: 0x449c
+        type: int
+      - name: start_month
+        offset: 0x44a0
+        type: int
+      - name: end_year
+        offset: 0x44a4
+        type: int
+      - name: end_month
+        offset: 0x44a8
+        type: int
 lord_basic_offsets:
   offset: 0x1
   memory:

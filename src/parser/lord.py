@@ -1,5 +1,7 @@
 """This script contains a class to handle all lord specific memory rreading and value calculation."""
 
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -7,21 +9,25 @@ from src import PROCESS_NAME
 
 from .read_data import D_Types, read_memory_chunk
 
+logger = logging.getLogger(__name__)
+
 
 class Lord:
     """Class to read lord values from game memory."""
 
-    def __init__(self, map_name: dict, lord_basic: dict, lord_global: dict, lord_name: dict, lord_stat: dict) -> None:
+    def __init__(
+        self, map_settings: dict, lord_basic: dict, lord_global: dict, lord_name: dict, lord_stat: dict
+    ) -> None:
         """Initialite Lord class.
 
         Args:
-            map_name (dict): address of map name
+            map_settings (dict): address of map settings data
             lord_basic (dict): addresses of basic lord stats
             lord_global (dict): addresses of global lord stats
             lord_name (dict): addresses of lord names
             lord_stat (dict): addresses of detailed lord stats
         """
-        self.map_name = map_name
+        self.map_settings = map_settings["memory"]
         self.lord_basic = lord_basic["memory"]
         self.lord_basic_off = lord_basic["offset"]
         self.lord_name = lord_name["memory"]
@@ -51,6 +57,25 @@ class Lord:
             config["lord_global_offsets"],
             config["lord_name_offsets"],
             config["lord_stat_offsets"],
+        )
+
+    def get_map_settings(self) -> pd.DataFrame:
+        """Read the memory values for map settings.
+
+        Returns:
+            pd.DataFrame: map settings data
+        """
+        map_offsets = [extra_off["offset"] for extra_off in self.map_settings["stat_offsets"]]
+        dtypes = [D_Types[extra_off["type"].upper()] for extra_off in self.map_settings["stat_offsets"]]
+        map_mem = read_memory_chunk(
+            PROCESS_NAME,
+            self.map_settings["address"],
+            map_offsets,
+            dtypes,
+        )
+        map_mem_arr = np.array(map_mem).reshape((1, -1))
+        return pd.DataFrame(
+            map_mem_arr, columns=[extra_off["name"] for extra_off in self.map_settings["stat_offsets"]]
         )
 
     def get_active_lords(self) -> None:
