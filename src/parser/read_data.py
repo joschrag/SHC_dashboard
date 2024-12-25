@@ -161,7 +161,10 @@ def read_memory(process_name: str, address: int, dtype: D_Types) -> int | bool |
             )
 
             if not success:
-                raise MemoryReadError("Failed to read memory.", process_name=process_name, address=address)
+                error_code = ctypes.windll.kernel32.GetLastError()
+                raise MemoryReadError(
+                    f"Failed to read memory.\n{error_code}", process_name=process_name, address=address
+                )
 
             # Return the read value
             if isinstance(buffer, ctypes.Array):
@@ -244,7 +247,10 @@ def read_memory_chunk(
             )
 
             if not success:
-                raise MemoryReadError("Failed to read memory.", process_name=process_name, address=base_address)
+                error_code = ctypes.windll.kernel32.GetLastError()
+                raise MemoryReadError(
+                    f"Failed to read memory.\n{error_code}", process_name=process_name, address=base_address
+                )
 
             # Extract the values dynamically
             results = []
