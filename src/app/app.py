@@ -11,6 +11,14 @@ from . import data_callbacks, graph_callbacks, ui_callbacks  # noqa: F401
 
 
 def init_dash_app(read_interval: float = 10) -> dash.Dash:
+    """Initialize the dash app with the desired read interval per second.
+
+    Args:
+        read_interval (float, optional): ticks of interval component per second. Defaults to 10.
+
+    Returns:
+        dash.Dash: dash app object
+    """
     cache = diskcache.Cache("./cache")
     long_callback_manager = DiskcacheLongCallbackManager(cache)
     app = dash.Dash(
@@ -70,7 +78,7 @@ def init_dash_app(read_interval: float = 10) -> dash.Dash:
             dcc.Store("cards_store_train", storage_type="session"),
             dcc.Store("cards_store_game", storage_type="session"),
             dcc.Store("settings_store", storage_type="session"),
-            dcc.Store("game_store", storage_type="session"),
+            dcc.Store("game_store", storage_type="memory"),
             dcc.Store("col_store", storage_type="session"),
             dcc.Store("lord_store", storage_type="session"),
         ],
