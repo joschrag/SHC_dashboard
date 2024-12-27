@@ -37,8 +37,13 @@ def update_game_state(_: int) -> str:
     return sm.update_state(PROCESS_NAME)
 
 
-@callback(Output("game_store", "data"), Input("game_read", "n_intervals"), State("game_store", "data"))
-def read_data_from_memory(n_intervals: int, data: list | None) -> list:
+@callback(
+    Output("game_store", "data"),
+    Input("game_read", "n_intervals"),
+    State("game_store", "data"),
+    State("game_state", "data"),
+)
+def read_data_from_memory(n_intervals: int, data: list | None, state: str) -> list:
     """Read values from game memory.
 
     Args:
@@ -50,7 +55,6 @@ def read_data_from_memory(n_intervals: int, data: list | None) -> list:
     """
     data = data or []
     game_data = pd.DataFrame(data)
-    state = sm.update_state(PROCESS_NAME)
     if state == "game":
         lord_glob_df = lord.get_lord_global_stats()
         lord_det_df = lord.get_lord_detailed_stats()
@@ -72,8 +76,13 @@ def read_data_from_memory(n_intervals: int, data: list | None) -> list:
     return game_data.to_dict("records")
 
 
-@callback(Output("map_store", "data"), Input("game_read", "n_intervals"), State("map_store", "data"))
-def read_map_data_from_memory(n_intervals: int, data: list | None) -> list:
+@callback(
+    Output("map_store", "data"),
+    Input("game_read", "n_intervals"),
+    State("map_store", "data"),
+    State("game_state", "data"),
+)
+def read_map_data_from_memory(n_intervals: int, data: list | None, state: str) -> list:
     """Read values from game memory.
 
     Args:
@@ -85,8 +94,7 @@ def read_map_data_from_memory(n_intervals: int, data: list | None) -> list:
     """
     data = data or []
     map_data = pd.DataFrame(data)
-    state = sm.update_state(PROCESS_NAME)
-    if state == "game":
+    if state == "game" and n_intervals is not None:
         lord_glob_df = lord.get_map_settings()
         lord_glob_df["end_month"] = lord_glob_df["end_month"] + 1
         lord_glob_df["start_month"] = lord_glob_df["start_month"] + 1
@@ -110,8 +118,13 @@ def read_map_data_from_memory(n_intervals: int, data: list | None) -> list:
     return map_data.to_dict("records")
 
 
-@callback(Output("lord_store", "data"), Input("game_read", "n_intervals"), State("lord_store", "data"))
-def save_lord_names(n_intervals: int, data: list | None) -> list:
+@callback(
+    Output("lord_store", "data"),
+    Input("game_read", "n_intervals"),
+    State("lord_store", "data"),
+    State("game_state", "data"),
+)
+def save_lord_names(n_intervals: int, data: list | None, state: str) -> list:
     """Store the lord names into app memory.
 
     Args:
@@ -128,7 +141,6 @@ def save_lord_names(n_intervals: int, data: list | None) -> list:
         old_df = pd.DataFrame(data)
     else:
         old_df = pd.DataFrame()
-    state = sm.update_state(PROCESS_NAME)
     if state != "stats":
         lord.get_active_lords()
         if lord.num_lords == 0:
