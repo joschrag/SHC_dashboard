@@ -78,7 +78,7 @@ def init_dash_app(read_interval: float = 10) -> dash.Dash:
             dcc.Store("cards_store_game", storage_type="session"),
             dcc.Store("settings_store", storage_type="session"),
             dcc.Store("game_store", storage_type="memory"),
-            dcc.Store("col_store", storage_type="session"),
+            dcc.Store("last_tick_store", storage_type="session"),
             dcc.Store("lord_store", storage_type="session"),
             dcc.Store("map_store", storage_type="session"),
         ],
