@@ -1,3 +1,5 @@
+"""This script contains the code to read values from process memory."""
+
 import ctypes
 import logging
 import pathlib
@@ -14,24 +16,42 @@ logger = logging.getLogger(__name__)
 PROCESS_ALL_ACCESS = 0x1F0FFF
 
 
-def read_config(filename: str) -> dict:
-    path = pathlib.Path().cwd() / "memory" / f"{filename}.yaml"
+def read_config(filename: str, folder: str) -> dict:
+    """Read a config file into a dict.
+
+    Args:
+        filename (str): config file
+        folder (str): folder of config file
+
+    Returns:
+        dict: contents of the config file
+    """
+    path = pathlib.Path().cwd() / "config_files" / folder / f"{filename}.yaml"
     with open(path, "r", encoding="utf8") as file:
-        if path.suffix == ".yaml":
-            data = yaml.safe_load(file)
+        data = yaml.safe_load(file)
     return data
 
 
 # Helper function to find a process by name
-def get_process_by_name(name):
+def get_process_by_name(name: str) -> psutil.Process:
+    """Get a running process by name.
+
+    Args:
+        name (str): name of process to find
+
+    Returns:
+        psutil.Process: process object
+    """
     for proc in psutil.process_iter(["name"]):
         # print(proc.info["name"])
         if proc.info["name"] == name:
             return proc
-    return None
+    raise MemoryReadError("Process not found", process_name=name)
 
 
 class D_Types(Enum):
+    """Enum class for data types."""
+
     INT = 0
     STRING = 1
     BYTE = 2
@@ -51,13 +71,25 @@ d_types: dict[D_Types, c_uint32 | c_byte | c_bool | c_uint16 | Array[c_char]] = 
 class MemoryReadError(Exception):
     """Custom exception for memory read errors."""
 
-    def __init__(self, message, process_name=None, address=None):
+    def __init__(self, message: str, process_name: str | None = None, address: int | None = None):
+        """Init the error.
+
+        Args:
+            message (str): error message
+            process_name (str | None, optional): name of the process. Defaults to None.
+            address (int | None, optional): memory address. Defaults to None.
+        """
         self.message = message
         self.process_name = process_name
         self.address = address
         super().__init__(self._build_message())
 
-    def _build_message(self):
+    def _build_message(self) -> str:
+        """Build the error message.
+
+        Returns:
+            str: error message
+        """
         details = []
         if self.process_name:
             details.append(f"Process: '{self.process_name}'")
@@ -68,6 +100,16 @@ class MemoryReadError(Exception):
 
 
 def slice_ctypes_array(ctypes_array: Array, offset: int, length: int) -> Array:
+    """Slice a ctypes array.
+
+    Args:
+        ctypes_array (Array): array to be sliced
+        offset (int): start of slice
+        length (int): length of slice
+
+    Returns:
+        Array: sliced array
+    """
     array_type = ctypes.c_byte * length
     return array_type(*ctypes_array[offset : offset + length])  # noqa: E203
 
@@ -119,7 +161,10 @@ def read_memory(process_name: str, address: int, dtype: D_Types) -> int | bool |
             )
 
             if not success:
-                raise MemoryReadError("Failed to read memory.", process_name=process_name, address=address)
+                error_code = ctypes.windll.kernel32.GetLastError()
+                raise MemoryReadError(
+                    f"Failed to read memory.\n{error_code}", process_name=process_name, address=address
+                )
 
             # Return the read value
             if isinstance(buffer, ctypes.Array):
@@ -202,7 +247,10 @@ def read_memory_chunk(
             )
 
             if not success:
-                raise MemoryReadError("Failed to read memory.", process_name=process_name, address=base_address)
+                error_code = ctypes.windll.kernel32.GetLastError()
+                raise MemoryReadError(
+                    f"Failed to read memory.\n{error_code}", process_name=process_name, address=base_address
+                )
 
             # Extract the values dynamically
             results = []
@@ -211,10 +259,9 @@ def read_memory_chunk(
                 if d == D_Types.INT:
                     value: int | str | bool = ctypes.c_uint32.from_buffer_copy(slice).value
                 elif d == D_Types.STRING:
-                    # print(chardet.detect(bytes(np.mod(buffer[offset : offset + type_sizes[d]], 256).tolist())))
-                    value = ctypes.create_string_buffer(
-                        bytes(np.mod(buffer[offset : offset + type_sizes[d]], 256))  # noqa: E203
-                    ).value.decode("ISO-8859-1")
+                    raw_data = np.mod(buffer[offset : offset + type_sizes[d]], 256).astype(np.uint8)  # noqa: E203
+                    byte_data = raw_data.tobytes()
+                    value = ctypes.create_string_buffer(byte_data).value.decode("ISO-8859-1")
                 elif d == D_Types.BYTE:
                     value = ctypes.c_byte.from_buffer_copy(slice).value
                 elif d == D_Types.BOOLEAN:

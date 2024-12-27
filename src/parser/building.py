@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from src import PROCESS_NAME
-from src.stats.read_data import D_Types, read_config, read_memory, read_memory_chunk
+from src.parser.read_data import D_Types, read_config, read_memory, read_memory_chunk
 
 
 class Building:
@@ -18,7 +18,7 @@ class Building:
             offsets (dict): offset to next building in memory
             total_buildings (int): address where number of total buildings is stored
         """
-        self.building_names = read_config("names")["Buildings"]
+        self.building_names = read_config("names", "memory")["Buildings"]
         self.base = base
         self.offset = offsets["offset"]
         self.owner = offsets["owneroffset"]
@@ -132,5 +132,10 @@ class Building:
             building_mem_df.loc[:, ["owner", "workers_needed", "workers_working", "workers_missing"]]
             .groupby("owner")
             .sum()
+        )
+        building_info_df["not_working"] = (
+            building_mem_df.loc[building_mem_df["workers_missing"] > 0, ["owner", "workers_missing"]]
+            .groupby("owner")
+            .size()
         )
         return building_info_df.reset_index(names=["p_ID"])

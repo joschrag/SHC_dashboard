@@ -1,3 +1,7 @@
+"""This script contains a class to handle all lord specific memory rreading and value calculation."""
+
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -5,10 +9,25 @@ from src import PROCESS_NAME
 
 from .read_data import D_Types, read_memory_chunk
 
+logger = logging.getLogger(__name__)
+
 
 class Lord:
-    def __init__(self, map: dict, lord_basic: dict, lord_global: dict, lord_name: dict, lord_stat: dict) -> None:
-        self.map = map
+    """Class to read lord values from game memory."""
+
+    def __init__(
+        self, map_settings: dict, lord_basic: dict, lord_global: dict, lord_name: dict, lord_stat: dict
+    ) -> None:
+        """Initialite Lord class.
+
+        Args:
+            map_settings (dict): address of map settings data
+            lord_basic (dict): addresses of basic lord stats
+            lord_global (dict): addresses of global lord stats
+            lord_name (dict): addresses of lord names
+            lord_stat (dict): addresses of detailed lord stats
+        """
+        self.map_settings = map_settings["memory"]
         self.lord_basic = lord_basic["memory"]
         self.lord_basic_off = lord_basic["offset"]
         self.lord_name = lord_name["memory"]
@@ -24,6 +43,14 @@ class Lord:
 
     @staticmethod
     def from_dict(config: dict) -> "Lord":
+        """Instantiate Lord class from config dictionary.
+
+        Args:
+            config (dict): config dictionary
+
+        Returns:
+            Lord: instantiated class object
+        """
         return Lord(
             config["map_offsets"],
             config["lord_basic_offsets"],
@@ -32,7 +59,35 @@ class Lord:
             config["lord_stat_offsets"],
         )
 
+    def get_map_settings(self) -> pd.DataFrame:
+        """Read the memory values for map settings.
+
+        Returns:
+            pd.DataFrame: map settings data
+        """
+        map_offsets = [extra_off["offset"] for extra_off in self.map_settings["stat_offsets"]]
+        dtypes = [D_Types[extra_off["type"].upper()] for extra_off in self.map_settings["stat_offsets"]]
+        map_mem = read_memory_chunk(
+            PROCESS_NAME,
+            self.map_settings["address"],
+            map_offsets,
+            dtypes,
+        )
+        map_mem_arr = np.array(map_mem).reshape((1, -1))
+        return pd.DataFrame(
+            map_mem_arr, columns=[extra_off["name"] for extra_off in self.map_settings["stat_offsets"]]
+        ).astype(
+            {
+                "map_name": pd.StringDtype(),
+                "start_year": pd.Int32Dtype(),
+                "start_month": pd.Int8Dtype(),
+                "end_year": pd.Int32Dtype(),
+                "end_month": pd.Int8Dtype(),
+            }
+        )
+
     def get_active_lords(self) -> None:
+        """Read active lords from memory."""
         lord_basic = self.lord_basic[0]
         basic_offsets = [
             i * self.lord_basic_off + extra_off["offset"] for extra_off in lord_basic["stat_offsets"] for i in range(8)
@@ -50,6 +105,9 @@ class Lord:
         self.teams = lord_basic_arr[1, 0 : self.num_lords]  # noqa: E203
 
     def get_lord_names(self) -> None:
+        """Read names of lords from memory."""
+        if self.num_lords == 0:
+            return
         lord_name = self.lord_name[0]
         names_offsets = [
             i * self.lord_name_off + extra_off["offset"]
@@ -67,9 +125,14 @@ class Lord:
             names_offsets,
             dtypes,
         )
-        self.lord_names = np.reshape(np.array(lord_names_mem), (self.num_lords, 1))
+        self.lord_names = np.array(lord_names_mem)
 
     def get_lord_global_stats(self) -> pd.DataFrame:
+        """Read global lord stats from memory.
+
+        Returns:
+            pd.DataFrame: global lord stats
+        """
         cols = ["p_ID"] + [
             extra_off["name"] for lord_global in self.lord_global for extra_off in lord_global["stat_offsets"]
         ]
@@ -102,6 +165,11 @@ class Lord:
         return pd.DataFrame(total_arr, columns=cols)
 
     def get_lord_detailed_stats(self) -> pd.DataFrame:
+        """Read detailed lord stats from memory.
+
+        Returns:
+            pd.DataFrame: detailed lord stats
+        """
         cols = [extra_off["name"] for lord_stat in self.lord_stat for extra_off in lord_stat["stat_offsets"]]
         total_arr = np.empty((self.num_lords, 0))
         for lord_stat in self.lord_stat:

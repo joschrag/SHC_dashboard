@@ -38,6 +38,7 @@ dash = {extras = ["testing"], version = "^2.17.1"}
 pydocstyle = "^6.3.0"
 pytest-mock = "^3.14.0"
 types-pyyaml = "^6.0.12.20240311"
+flake8-bugbear = "^24.12.12"
 
 [build-system]
 requires = ["poetry-core"]

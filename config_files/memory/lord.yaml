@@ -1,11 +1,25 @@
 map_offsets:
-  offset: 0x0
   memory:
-      - address: 0x24b649c
-        stat_offsets:
-          - name: map_name
-            offset: 0x0
-            type: string
+    address: 0x24b649c
+    stat_offsets:
+      - name: map_name
+        offset: 0x0
+        type: string
+      - name: advantage_setting
+        offset: 0x1ab0
+        type: byte
+      - name: start_year
+        offset: 0x449c
+        type: int
+      - name: start_month
+        offset: 0x44a0
+        type: int
+      - name: end_year
+        offset: 0x44a4
+        type: int
+      - name: end_month
+        offset: 0x44a8
+        type: int
 lord_basic_offsets:
   offset: 0x1
   memory:
@@ -28,22 +42,22 @@ lord_global_offsets:
         - name: num_total_buildings
           offset: 0x9dccc
           type: int
-    - address: 0x24ba564
+    - address: 0x24ba560
       stat_offsets:
         - name: total_gold
-          offset: 0x0
+          offset: 0x4
           type: int
         - name: weighted_troops_killed
-          offset: 0x2dc
+          offset: 0x2d8
           type: int
         - name: weighted_buildings_destroyed
-          offset: 0x300
+          offset: 0x2FC
           type: int
         - name: goods_received
-          offset: 0x348
+          offset: 0x344
           type: int
         - name: goods_sent
-          offset: 0x36c
+          offset: 0x368
           type: int
 lord_name_offsets:
   offset: 0x5a
@@ -61,7 +75,7 @@ lord_stat_offsets:
         - name: housing
           offset: 0x0
           type: word
-        - name: units
+        - name: total_units
           offset: 0x344
           type: int
         - name: siege_engines
@@ -153,9 +167,6 @@ lord_stat_offsets:
         - name: num_inns
           offset: 0x234
           type: int
-        # - name: working_woodcutters
-        #   offset: 0xa80
-        #   type: int
         - name: num_bakery
           offset: 0xaf4
           type: int
