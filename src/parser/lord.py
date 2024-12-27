@@ -76,6 +76,14 @@ class Lord:
         map_mem_arr = np.array(map_mem).reshape((1, -1))
         return pd.DataFrame(
             map_mem_arr, columns=[extra_off["name"] for extra_off in self.map_settings["stat_offsets"]]
+        ).astype(
+            {
+                "map_name": pd.StringDtype(),
+                "start_year": pd.Int32Dtype(),
+                "start_month": pd.Int8Dtype(),
+                "end_year": pd.Int32Dtype(),
+                "end_month": pd.Int8Dtype(),
+            }
         )
 
     def get_active_lords(self) -> None:
