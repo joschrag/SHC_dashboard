@@ -24,6 +24,19 @@ unit = Unit.from_dict(unit_config)
 sm = StateMachine()
 
 
+@callback(Output("game_state", "data"), Input("game_read", "n_intervals"))
+def update_game_state(_: int) -> str:
+    """Update the game state and store state in app.
+
+    Args:
+        _ (int): number of intervals.
+
+    Returns:
+        str: One of "game", "lobby" or "stats".
+    """
+    return sm.update_state(PROCESS_NAME)
+
+
 @callback(Output("game_store", "data"), Input("game_read", "n_intervals"), State("game_store", "data"))
 def read_data_from_memory(n_intervals: int, data: list | None) -> list:
     """Read values from game memory.
