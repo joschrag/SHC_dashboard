@@ -118,6 +118,8 @@ def save_lord_names(n_intervals: int, data: list | None) -> list:
     state = sm.update_state(PROCESS_NAME)
     if state != "stats":
         lord.get_active_lords()
+        if lord.num_lords == 0:
+            raise PreventUpdate()
         lord.get_lord_names()
         lord_df = pd.DataFrame(
             {"p_ID": np.arange(1, lord.num_lords + 1), "lord_names": lord.lord_names, "teams": lord.teams}
