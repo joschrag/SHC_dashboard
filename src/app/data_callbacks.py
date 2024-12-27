@@ -59,6 +59,44 @@ def read_data_from_memory(n_intervals: int, data: list | None) -> list:
     return game_data.to_dict("records")
 
 
+@callback(Output("map_store", "data"), Input("game_read", "n_intervals"), State("map_store", "data"))
+def read_map_data_from_memory(n_intervals: int, data: list | None) -> list:
+    """Read values from game memory.
+
+    Args:
+        n_intervals (int): number of intervals passed
+        data (list | None): currently stored game data
+
+    Returns:
+        list: game data
+    """
+    data = data or []
+    map_data = pd.DataFrame(data)
+    state = sm.update_state(PROCESS_NAME)
+    if state == "game":
+        lord_glob_df = lord.get_map_settings()
+        lord_glob_df["end_month"] = lord_glob_df["end_month"] + 1
+        lord_glob_df["start_month"] = lord_glob_df["start_month"] + 1
+        lord_glob_df["year_month"] = (
+            lord_glob_df["end_year"].astype(str) + "-" + lord_glob_df["end_month"].astype(str)
+        ).astype("datetime64[s]")
+        if ((lord_glob_df["start_year"] == 0) | (lord_glob_df["end_year"] == 0)).any():
+            raise PreventUpdate()
+        if not map_data.empty and map_data[lord_glob_df.columns.to_list()].tail(1).reset_index(drop=True).equals(
+            lord_glob_df
+        ):
+            raise PreventUpdate()
+        lord_glob_df["time"] = n_intervals
+        map_data = pd.concat(
+            [map_data, lord_glob_df],
+            ignore_index=True,
+        )
+        return map_data.to_dict("records")
+    elif state == "lobby":
+        map_data = pd.DataFrame()
+    return map_data.to_dict("records")
+
+
 @callback(Output("lord_store", "data"), Input("game_read", "n_intervals"), State("lord_store", "data"))
 def save_lord_names(n_intervals: int, data: list | None) -> list:
     """Store the lord names into app memory.
