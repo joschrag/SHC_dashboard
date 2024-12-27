@@ -106,6 +106,8 @@ class Lord:
 
     def get_lord_names(self) -> None:
         """Read names of lords from memory."""
+        if self.num_lords == 0:
+            return
         lord_name = self.lord_name[0]
         names_offsets = [
             i * self.lord_name_off + extra_off["offset"]
