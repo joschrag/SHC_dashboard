@@ -138,4 +138,4 @@ class Building:
             .groupby("owner")
             .size()
         )
-        return building_info_df.reset_index(names=["p_ID"])
+        return building_info_df.reset_index(names=["p_ID"]).fillna(0)

@@ -177,5 +177,9 @@ class Unit:
         unit_stats_df = army.groupby(["p_ID", "unit_name"]).size().unstack(fill_value=0)
         unit_stats_df = pd.concat([unit_stats_df, se_stats_df], axis=1)
         tmp_result = army.groupby(["p_ID", "is_ranged"]).size().unstack(fill_value=0)
+        missing_units = np.vectorize(self.unit_names.get)(
+            np.array([x for x in unit_list + siege_engines if x not in units["ID"].unique()])
+        )
+        unit_stats_df.loc[:, missing_units] = 0
         unit_stats_df[["melee", "ranged"]] = tmp_result.reindex(columns=[0, 1], fill_value=0).fillna(0)
         return unit_stats_df
