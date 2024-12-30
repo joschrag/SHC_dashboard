@@ -1,12 +1,16 @@
 """This script contains the callbacks used in the app ui generation."""
 
 import logging
+from uuid import uuid4
 
 import dash
+import dash.types
 import dash_bootstrap_components as dbc
+import pandas as pd
 from dash import ALL, Input, Output, State, callback, html, no_update
+from dash.exceptions import PreventUpdate
 
-from src import APP_CATEGORIES, IMAGE_PATHS
+from src import APP_CATEGORIES, IMAGE_PATHS, engine
 
 logger = logging.getLogger(__name__)
 
@@ -71,3 +75,29 @@ def toggle_subcategories(n_clicks: list, ids: list) -> tuple:
     ]
 
     return categories, subcategories
+
+
+@callback(
+    Output("loc", "pathname", allow_duplicate=True),
+    Input("record_game", "n_clicks"),
+    prevent_initial_call="initial_duplicate",
+)
+def display_dashboard_content(n_clicks: int) -> str:
+    """Create a game uid and direct to dashboard page.
+
+    Args:
+        n_clicks (int): number of button clicks
+
+    Raises:
+        PreventUpdate: prevent callback update
+
+    Returns:
+        str: new path for game capture
+    """
+    if n_clicks:
+        game_uid = uuid4().hex
+        with engine.begin() as conn:
+            dataframe = pd.DataFrame({"id": [game_uid], "created_at": [pd.Timestamp.now()]})
+            dataframe.to_sql("games", conn, index=False, if_exists="append")
+        return dash.get_relative_path(f"/dashboard/{game_uid}")
+    raise PreventUpdate()
