@@ -16,29 +16,34 @@ logger = logging.getLogger(__name__)
 @callback(
     Output("stat-display", "figure"),
     Output("last_tick_store", "data"),
-    Input("game_store", "data"),
+    Input("lord_store", "data"),
     Input({"type": "graph-switch", "index": ALL}, "n_clicks"),
     State("last_tick_store", "data"),
-    State("lord_store", "data"),
+    State("lord_names", "data"),
     State("map_store", "data"),
+    State("unit_store", "data"),
     State("stat-display", "figure"),
+    prevent_initial_call=True,
 )
 def update_graph(
-    game_data, _, last_tick_store, lord_data, map_data, current_fig
+    lord_data, _, last_tick_store, lord_names_data, map_data, unit_data, current_fig
 ) -> tuple[go.Figure | dash.Patch, tuple[str, int]]:
     """Update the display graph based on game and lord data."""
     last_tick_store = last_tick_store or ("popularity", None)
     column, last_tick = last_tick_store
     figure = go.Figure(current_fig) if current_fig else go.Figure()
 
-    if not (game_data and lord_data and ctx.triggered_id and map_data):
+    if not (lord_data and lord_names_data and ctx.triggered_id and map_data and unit_data):
         raise PreventUpdate()
 
     if isinstance(ctx.triggered_id, dict):
         column = ctx.triggered_id.get("index", column)
     map_df = pd.DataFrame(map_data).drop(columns=["map_name", "advantage_setting", "start_year", "start_month"])
-    df: pd.DataFrame = pd.DataFrame(game_data).sort_values(["p_ID", "time"])
-    df = df.merge(pd.DataFrame(lord_data), on="p_ID", how="left")
+    unit_data = pd.DataFrame(unit_data)
+    df: pd.DataFrame = (
+        pd.DataFrame(lord_data).merge(unit_data, on=["p_ID", "game_id", "time"]).sort_values(["p_ID", "time"])
+    )
+    df = df.merge(pd.DataFrame(lord_names_data), on="p_ID", how="left")
 
     # Identify and remove outliers
     tolerance = 5
