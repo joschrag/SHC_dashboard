@@ -181,5 +181,5 @@ class Unit:
             np.array([x for x in unit_list + siege_engines if x not in units["ID"].unique()])
         )
         unit_stats_df.loc[:, missing_units] = 0
-        unit_stats_df[["melee", "ranged"]] = tmp_result.reindex(columns=[0, 1], fill_value=0).fillna(0)
-        return unit_stats_df
+        unit_stats_df[["melee", "ranged"]] = tmp_result.reindex(columns=[0, 1], fill_value=0)
+        return unit_stats_df.fillna(0)
