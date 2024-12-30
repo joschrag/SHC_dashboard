@@ -25,7 +25,7 @@ class Lord_Names(Base):
 
     __tablename__ = "lord_names"
 
-    lord_name = mapped_column(String(100))
+    lord_names = mapped_column(String(100))
     p_ID = mapped_column(Integer)
     teams = mapped_column(Integer)
     game_id = mapped_column(ForeignKey("games.id"))
@@ -42,6 +42,7 @@ class Lords(Base):
     p_ID = mapped_column(Integer)
     num_eco_buildings = mapped_column(Integer)
     num_total_buildings = mapped_column(Integer)
+    num_buildings = mapped_column(Integer)
     num_eco_buildings = mapped_column(Integer)
     total_gold = mapped_column(Integer)
     weighted_troops_killed = mapped_column(Integer)
@@ -54,6 +55,7 @@ class Lords(Base):
     popularity = mapped_column(Integer)
     wood = mapped_column(Integer)
     hops = mapped_column(Integer)
+    ale = mapped_column(Integer)
     stone = mapped_column(Integer)
     iron = mapped_column(Integer)
     pitch = mapped_column(Integer)
